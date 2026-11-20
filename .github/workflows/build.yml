@@ -1,0 +1,21 @@
+name: Build
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: |
+          wget https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
+          mkdir out
+          javac -encoding UTF-8 -cp gson-2.10.1.jar -d out Launcher.java
+          cd out && unzip -q ../gson-2.10.1.jar && rm META-INF/MANIFEST.MF && cd ..
+          jar cfe launcher.jar Launcher -C out .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: launcher
+          path: launcher.jar
